@@ -21,6 +21,11 @@ class ViewController: UIViewController {
     
     var items = [ParserItem]()
     
+    let keyWords = ["轉換公司債",
+                    "暫停交易",
+                    "解盲",
+                    "代收價款及存儲"]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -45,12 +50,12 @@ class ViewController: UIViewController {
                     result = result.replacingOccurrences(of: "<?xml version='1.0' encoding='big5'?>", with: "")
                     let xml = try! XML.parse(result)
                     
+                    self.items.removeAll()
                     
                     for item in xml["rss"]["channel"]["item"] {
                         guard let cdata = item["description"].element?.CDATA else { return }
                         let cdataStr = self.convertCDATA(cdata: cdata)
-                        if cdataStr.contains("可轉換公司債券") ||
-                            cdataStr.contains("代收價款及存儲") {
+                        if self.keyWords.filter({ cdataStr.contains($0) }).count != 0 {
                             
                             self.items.append(ParserItem(title: item["title"].text,
                                                     link: self.convertCDATA(cdata:  item["link"].element?.CDATA ?? Data()),
@@ -89,7 +94,8 @@ extension ViewController: UITableViewDelegate {
         let webVC = WebViewController()
         webVC.view.frame = view.bounds
         webVC.webLink = items[indexPath.row].link
-        present(webVC, animated: true)
+        navigationController?.pushViewController(webVC, animated: true)
+//        present(webVC, animated: true)
     }
 }
 
@@ -102,7 +108,7 @@ extension ViewController: UITableViewDataSource {
         let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "CELL")
         let item = items[indexPath.row]
         cell.textLabel?.text = item.title
-        cell.detailTextLabel?.text = item.pubDate
+        cell.detailTextLabel?.text = item.description
         return cell
     }
 }
