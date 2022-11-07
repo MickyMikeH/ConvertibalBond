@@ -84,7 +84,7 @@ class ViewController: UIViewController {
     }
     
     func convertCDATA(cdata: Data) -> String {
-        return String(data: cdata, encoding: .utf8) ?? ""
+        return String(data: cdata, encoding: .utf8)?.removingAllWhitespaces ?? ""
     }
 }
 
@@ -95,7 +95,6 @@ extension ViewController: UITableViewDelegate {
         webVC.view.frame = view.bounds
         webVC.webLink = items[indexPath.row].link
         navigationController?.pushViewController(webVC, animated: true)
-//        present(webVC, animated: true)
     }
 }
 
@@ -106,7 +105,11 @@ extension ViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "CELL")
+        cell.textLabel?.textColor = .black
         let item = items[indexPath.row]
+        if item.description?.contains("代收價款") == true {
+            cell.textLabel?.textColor = .red
+        }
         cell.textLabel?.text = item.title
         cell.detailTextLabel?.text = item.description
         return cell
@@ -119,4 +122,17 @@ struct ParserItem {
     var description: String?
     var pubDate: String?
     var guid: String?
+}
+
+extension Bool {
+    var negated: Bool { !self }
+}
+
+extension StringProtocol where Self: RangeReplaceableCollection {
+    var removingAllWhitespaces: Self {
+        filter(\.isWhitespace.negated)
+    }
+    mutating func removeAllWhitespaces() {
+        removeAll(where: \.isWhitespace)
+    }
 }

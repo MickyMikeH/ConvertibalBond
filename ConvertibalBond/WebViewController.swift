@@ -8,14 +8,24 @@
 import UIKit
 import WebKit
 
-class WebViewController: UIViewController {
+class WebViewController: UIViewController, WKNavigationDelegate {
 
     public var webLink: String?
     
     lazy var webView: WKWebView = {
         let webView = WKWebView(frame: view.bounds)
+        webView.navigationDelegate = self
         view.addSubview(webView)
         return webView
+    }()
+    
+    lazy var activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView()
+        activityIndicator.center = self.view.center
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.style = UIActivityIndicatorView.Style.medium
+
+        return activityIndicator
     }()
     
     override func viewDidLoad() {
@@ -28,6 +38,30 @@ class WebViewController: UIViewController {
            let URL = URL(string: webLink) {
             let URLReq = URLRequest(url: URL)
             self.webView.load(URLReq)
+            view.addSubview(activityIndicator)
         }
     }
+    
+    func showActivityIndicator(show: Bool) {
+        if show {
+            activityIndicator.startAnimating()
+        }
+        else {
+            activityIndicator.stopAnimating()
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        showActivityIndicator(show: false)
+    }
+    
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        showActivityIndicator(show: true)
+    }
+    
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        showActivityIndicator(show: false)
+    }
 }
+
+
