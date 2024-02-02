@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  ConvertibalBond
 //
-//  Created by 金融研發一部-謝宜軒 on 2022/11/3.
+//  Created by MickyMikeH on 2022/11/3.
 //
 
 import UIKit
